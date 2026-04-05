@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NJ Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #c7d2fe; border-radius: 10px; }
+    .modal-active { overflow: hidden; }
+    input:focus, select:focus { outline: 2px solid #6366f1; border-color: transparent; }
+
+
+#modalBody {
+  padding-bottom: 80px !important;
+  overflow-y: auto;
+  overflow-x: visible;
+}
+.suggestion-box {
+  position: absolute;
+  z-index: 9999 !important;
+  background: white;
+  width: 100%;
+  min-width: 300px;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  left: 0;
+  top: 100%;
+  margin-top: 4px;
+}
+#modalTableBody td {
+  position: relative !important; 
+  overflow: visible !important;
+}
+.modal-table-wrapper {
+  overflow: visible !important;
+}
+#modalTableBody tr:last-child td {
+  padding-bottom: 150px !important; 
+}
+.border.border-slate-100.rounded-xl {
+    overflow: visible !important;
+}
+#modalTableBody tr {
+    position: relative;
+}
+#modalTableBody td {
+    overflow: visible !important;
+    position: relative;
+}
+
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen font-sans">
+
+<div class="max-w-7xl mx-auto p-4 md:p-8">
+  <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+    <div>
+      <h1 class="text-3xl font-extrabold text-indigo-900 tracking-tight">NJ <span class="text-indigo-500">Management</span></h1>
+      <p class="text-slate-500 font-medium">System Integrated &bullet; v2.0</p>
+    </div>
+    <div id="statusIndicator" class="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200">
+      <div id="dot" class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+      <span id="statusText" class="text-xs font-bold text-slate-600 uppercase tracking-widest">Connecting...</span>
+    </div>
+  </div>
+
+  <div class="mb-6 space-y-4">
+    <div class="relative group">
+      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+        <svg class="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+      <input type="text" id="omniSearch" onkeyup="applyFilters()" 
+        class="block w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-2xl shadow-sm focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all outline-none text-slate-600 font-medium" 
+        placeholder="Cari Nama, Kegiatan, atau NO DO...">
+    </div>
+
+    <div class="flex flex-wrap gap-3 items-center">
+      <select id="filterBrand" onchange="applyFilters()" class="bg-white border border-slate-200 text-slate-600 text-[10px] md:text-xs font-bold rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer uppercase shadow-sm">
+        <option value="">Semua Brand</option>
+      </select>
+      <select id="filterStatus" onchange="applyFilters()" class="bg-white border border-slate-200 text-slate-600 text-[10px] md:text-xs font-bold rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer uppercase shadow-sm">
+        <option value="">Semua Status</option>
+        <option value="Pending">Pending</option>
+        <option value="Pengajuan">Pengajuan</option>
+        <option value="Done">Done</option>
+        <option value="Kendala">Kendala</option>
+      </select>
+      <button onclick="resetFilters()" class="text-xs font-bold text-indigo-500 hover:text-indigo-700 transition-colors px-2">Clear All</button>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200">
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">ID & Nama</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Kegiatan</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-center">Tanggal</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-center">NO DO</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-center">Status</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody" class="divide-y divide-slate-100">
+          <tr><td colspan="6" class="px-6 py-12 text-center text-slate-400">Loading data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="modalDetail" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[92vh] flex flex-col overflow-hidden">
+    
+    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-20">
+      <div class="flex items-center gap-4">
+        <div>
+          <span id="modalID" class="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded"></span>
+          <h2 id="modalTitle" class="text-xl font-bold text-slate-800 mt-1 uppercase tracking-tight"></h2>
+          <span id="pic" class="text-xs font-bold text-slate-500"></span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btnEditMode" onclick="toggleEditMode()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition-all">Edit Mode</button>
+        <button onclick="copyHeaderData()" class="group px-4 py-2 bg-indigo-500 text-white rounded-lg text-xs font-bold hover:bg-indigo-600 transition-all shadow-md flex items-center gap-2 active:scale-95" id="copyHeader">
+          <svg class="w-4 h-4 transition-transform group-hover:rotate-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+          </svg>
+          <span>Copy Info</span>
+        </button>
+        <button onclick="copyBulkCodeQty()" id="copyBulkCodeQty" class="group px-4 py-2 bg-indigo-500 text-white rounded-lg text-xs font-bold hover:bg-indigo-600 transition-all shadow-md flex items-center gap-2 active:scale-95">
+          <svg class="w-4 h-4 transition-transform group-hover:rotate-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+          </svg>
+          <span>Copy Item</span>
+        </button>
+        <button id="btnSave" onclick="saveChanges()" class="hidden px-4 py-2 bg-green-600 text-white rounded-lg text-xs font-bold hover:bg-green-700 shadow-md transition-all">Save Changes</button>
+        <button id="btnAddItem" onclick="addNewItemRow()" class="hidden px-4 py-2 bg-indigo-100 text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-200 transition-all">Add Item</button>
+        <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors text-2xl">&times;</button>
+      </div>
+    </div>
+
+    <div id="modalBody" class="overflow-y-auto p-6 space-y-6">
+      
+      <div id="bulkActionPanel" class="hidden p-4 bg-indigo-50 rounded-xl border border-indigo-100 flex flex-wrap gap-4 items-end">
+        <div class="flex-1 min-w-[150px]">
+          <label class="text-[10px] font-black text-indigo-400 uppercase block mb-1">Set All Status</label>
+          <select id="bulkStatus" class="w-full p-2 rounded-lg border border-indigo-200 text-sm font-bold bg-white">
+            <option value="">- Pilih Status -</option>
+            <option value="Pending">Pending</option>
+            <option value="Pengajuan">Pengajuan</option>
+            <option value="Done">Done</option>
+            <option value="Kendala">Kendala</option>
+          </select>
+        </div>
+        <div class="flex-1 min-w-[150px]">
+          <label class="text-[10px] font-black text-indigo-400 uppercase block mb-1">Set All NO DO</label>
+          <input type="text" id="bulkNoDo" class="w-full p-2 rounded-lg border border-indigo-200 text-sm font-bold bg-white" placeholder="Input NO DO...">
+        </div>
+        <button onclick="applyBulkUpdate()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-black uppercase hover:bg-indigo-700 transition-all">Apply to All</button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+          <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Brand</p>
+          <p id="detBrand" class="font-bold text-slate-700 text-sm"></p>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+          <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Kode Budget</p>
+          <p id="detBudget" class="font-bold text-slate-700 text-sm"></p>
+        </div>
+        <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+          <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Tanggal</p>
+          <p id="detDate" class="font-bold text-slate-700 text-sm"></p>
+        </div>
+        <div class="p-3 bg-indigo-50 rounded-lg border border-indigo-100">
+          <p class="text-[10px] font-bold text-indigo-400 uppercase mb-1">Grand Total</p>
+          <p id="detGrandTotal" class="font-bold text-indigo-700 text-base"></p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 py-2">
+        <div class="space-y-4">
+          <div>
+            <h4 class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-wider">Background</h4>
+            <p id="detBackground" class="text-sm text-slate-600 bg-white border border-slate-100 p-3 rounded-lg leading-relaxed shadow-sm"></p>
+          </div>
+          <div>
+            <h4 class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-wider">Objective</h4>
+            <p id="detObjective" class="text-sm text-indigo-600 italic bg-indigo-50/30 border border-indigo-100 p-3 rounded-lg"></p>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <h4 class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-wider">Mekanisme Penggunaan</h4>
+            <p id="detMekanisme" class="text-sm text-slate-600 bg-slate-50/50 p-3 rounded-lg border border-dashed border-slate-200"></p>
+          </div>
+          <div>
+            <h4 class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-wider">Keterangan</h4>
+            <p id="detKeterangan" class="text-sm text-slate-500 bg-white p-3 rounded-lg border border-slate-100"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
+        <table class="w-full text-sm">
+          <thead class="sticky-header">
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="p-4 text-left font-bold text-slate-500">
+                <div class="flex items-center gap-1.5">
+                  <span>KODE</span>
+                  <button onclick="copyColumnData('Kode')" class="p-1 hover:bg-indigo-50 rounded text-indigo-400 hover:text-indigo-600 transition-colors" title="Copy Semua Kode">
+                    <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                  </button>
+                </div>
+              </th>
+              <th class="p-4 text-left font-bold text-slate-500">PRODUK</th>
+              <th class="p-4 text-center font-bold text-slate-500">
+                <div class="flex items-center justify-center gap-1.5">
+                  <span>QTY</span>
+                  <button onclick="copyColumnData('Jumlah')" class="p-1 hover:bg-indigo-50 rounded text-indigo-400 hover:text-indigo-600 transition-colors" title="Copy Semua Qty">
+                    <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                  </button>
+                </div>
+              </th>
+              <th class="p-4 text-right font-bold text-slate-500">TOTAL</th>
+              <th class="p-4 text-center font-bold text-slate-500">DO</th>
+              <th class="p-4 text-center font-bold text-slate-500 uppercase">Status</th>
+              <th class="p-4 text-center font-bold text-red-500 ${!isEditMode ? 'hidden' : ''}">ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="modalTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<datalist id="masterProducts"></datalist>
+<div id="toastContainer" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+<style>
+  .toast-enter { transform: translateX(100%); opacity: 0; }
+  .toast-active { transform: translateX(0); opacity: 1; transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+  .toast-exit { transform: translateX(100%); opacity: 0; transition: all 0.3s ease-in; }
+</style>
+<script src="script.js" defer></script>
+
+</body>
+</html>
