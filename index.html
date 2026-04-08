@@ -129,19 +129,25 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
+      	<button id="btnSendNotif" onclick="sendIncompleteRequest()" class="group px-4 py-2 bg-indigo-500 text-white rounded-lg text-xs font-bold hover:bg-indigo-600 transition-all shadow-md flex items-center gap-2 active:scale-95">
+	  <svg class="w-4 h-4 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+	    <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+	  </svg>
+	  <span>Copy Data</span>
+	</button>
         <button id="btnEditMode" onclick="toggleEditMode()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition-all">Edit Mode</button>
-        <button onclick="copyHeaderData()" class="group px-4 py-2 bg-indigo-500 text-white rounded-lg text-xs font-bold hover:bg-indigo-600 transition-all shadow-md flex items-center gap-2 active:scale-95" id="copyHeader">
-          <svg class="w-4 h-4 transition-transform group-hover:rotate-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
-          </svg>
-          <span>Copy Info</span>
-        </button>
-        <button onclick="copyBulkCodeQty()" id="copyBulkCodeQty" class="group px-4 py-2 bg-indigo-500 text-white rounded-lg text-xs font-bold hover:bg-indigo-600 transition-all shadow-md flex items-center gap-2 active:scale-95">
-          <svg class="w-4 h-4 transition-transform group-hover:rotate-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
-          </svg>
-          <span>Copy Item</span>
-        </button>
+        <button onclick="copyHeaderData()" id="copyHeader" class="group px-4 py-2 bg-indigo-500 text-white rounded-lg text-xs font-bold hover:bg-indigo-600 transition-all shadow-md flex items-center gap-2 active:scale-95">
+	  <svg class="w-4 h-4 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+	    <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+	  </svg>
+	  <span>Copy Info</span>
+	</button>
+	<button onclick="copyBulkCodeQty()" id="copyBulkCodeQty" class="group px-4 py-2 bg-indigo-500 text-white rounded-lg text-xs font-bold hover:bg-indigo-600 transition-all shadow-md flex items-center gap-2 active:scale-95">
+	  <svg class="w-4 h-4 transition-transform duration-300 group-hover:scale-125 group-hover:-rotate-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+	    <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+	  </svg>
+	  <span>Copy Item</span>
+	</button>
         <button id="btnSave" onclick="saveChanges()" class="hidden px-4 py-2 bg-green-600 text-white rounded-lg text-xs font-bold hover:bg-green-700 shadow-md transition-all">Save Changes</button>
         <button id="btnAddItem" onclick="addNewItemRow()" class="hidden px-4 py-2 bg-indigo-100 text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-200 transition-all">Add Item</button>
         <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors text-2xl">&times;</button>
