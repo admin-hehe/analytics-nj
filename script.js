@@ -6,6 +6,7 @@ const webAppUrl = "/api";
     let isEditMode = false;
     let selectedIndex = null;
     let activeSuggestRow = null;
+    let waWindowReference = null;
 
     window.onload = () => {
       fetchData();
@@ -76,6 +77,7 @@ const webAppUrl = "/api";
       const bulkPanel = document.getElementById('bulkActionPanel');
       const btnHeader = document.getElementById('copyHeader');
       const btnBulk = document.getElementById('copyBulkCodeQty');
+      const btnSend = document.getElementById('btnSendNotif');
 
       if (isEditMode) {
         btn.innerText = "Exit Edit";
@@ -86,6 +88,7 @@ const webAppUrl = "/api";
         btnAdd.classList.remove('hidden');
         if (btnHeader) btnHeader.classList.add('hidden');
     	if (btnBulk) btnBulk.classList.add('hidden');
+    	if (btnSend) btnSend.classList.add('hidden');
       } else {
         if (selectedIndex !== null) {
           currentDisplayedData[selectedIndex].details = currentDisplayedData[selectedIndex].details.filter(d => !d.isNewRow);
@@ -98,6 +101,7 @@ const webAppUrl = "/api";
         btnAdd.classList.add('hidden');
         if (btnHeader) btnHeader.classList.remove('hidden');
     	if (btnBulk) btnBulk.classList.remove('hidden');
+    	if (btnSend) btnSend.classList.remove('hidden');
       }
       openDetail(selectedIndex);
     }
@@ -397,6 +401,59 @@ function copyBulkCodeQty() {
       showToast("Gagal copy data!");
     });
 }
+
+function sendIncompleteRequest() {
+  const item = currentDisplayedData[selectedIndex];
+  if (!item) return;
+
+  const h = item.headerInfo;
+  const details = item.details;
+  const uniqueDOs = [...new Set(details.map(d => String(d.NO_DO || "").trim()))]
+    .filter(val => val && val.toUpperCase() !== "BARANG KOSONG");
+
+  const normalItems = details.filter(d => {
+    const val = String(d.NO_DO || "").toUpperCase();
+    return val !== "BARANG KOSONG" && val !== "";
+  });
+  
+  const emptyItems = details.filter(d => {
+    const val = String(d.NO_DO || "").toUpperCase();
+    return val === "BARANG KOSONG";
+  });
+
+  let message = `*DETAIL PENGIRIMAN BARANG*\n`;
+  message += `----------------------------------\n`;
+  message += `*ID:* #${h.ID}\n`;
+  message += `*Kegiatan:* ${h.Kegiatan}\n`;
+  message += `*PIC:* ${h.Nama}\n`;
+  message += `*No. DO:* ${uniqueDOs.join(", ") || "-"}\n\n`;
+
+  if (normalItems.length > 0) {
+    message += `✅ *ITEM TERPENUHI:* \n`;
+    normalItems.forEach((d) => {
+      message += `- ${d.Produk} | *${d.Jumlah}* pcs | [DO: ${d.NO_DO}]\n`;
+    });
+    message += `\n`;
+  }
+  if (emptyItems.length > 0) {
+    message += `❌ *ITEM TIDAK TERPENUHI (KOSONG):* \n`;
+    emptyItems.forEach((d) => {
+      message += `- ${d.Produk} | *${d.Jumlah}* pcs |\n`;
+    });
+    message += `\n`;
+  }
+
+  message += `----------------------------------\n`;
+  message += `_Mohon dicek kembali rincian di atas._`;
+
+  navigator.clipboard.writeText(message).then(() => {
+    showToast("Data Berhasil Disalin! (Siap Paste)");
+  }).catch(err => {
+    console.error("Gagal Copy:", err);
+    showToast("Gagal menyalin data!");
+  });
+}
+
     function showToast(message) {
       const container = document.getElementById('toastContainer');
       const toast = document.createElement('div');
